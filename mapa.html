@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapa de visitas</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+
+<div id="map" style="height:100vh;"></div>
+
+<script>
+
+const map = L.map('map').setView([-32.8895, -68.8458], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+// 👇 PEGÁ TU URL DEL WEB APP
+fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
+  .then(res => res.json())
+  .then(data => {
+
+    data.forEach(p => {
+
+      const marker = L.marker([p.lat, p.lng]).addTo(map);
+
+      marker.bindPopup(`
+        <b>${p.comercio}</b><br>
+        ${p.nombre}<br>
+        📍 ${p.direccion}<br>
+        📱 ${p.celular}<br>
+        👤 ${p.vendedor}
+      `);
+
+    });
+
+  });
+
+</script>
+
+</body>
+</html>
