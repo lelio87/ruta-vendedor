@@ -10,62 +10,44 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f6f9;
     }
 
-    /* 🔝 Barra superior */
+    /* 🔝 Barra minimal */
     .topbar {
-      width: 100%;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
       background: white;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 8px 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    .topbar select {
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    select {
+      border: none;
+      font-size: 14px;
+      outline: none;
     }
 
-    /* 📦 Contenedor */
-    .container {
-      padding: 20px;
-    }
-
-    /* 🗺️ Caja del mapa */
-    .map-container {
-      height: 75vh;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      background: white;
-    }
-
+    /* 🗺️ Mapa full */
     #map {
-      height: 100%;
+      height: 100vh;
+      width: 100%;
     }
 
   </style>
 </head>
 <body>
 
-<!-- 🔝 FILTROS -->
 <div class="topbar">
-  <label><b>Vendedor:</b></label>
   <select id="filtroVendedor">
-    <option value="todos">Todos</option>
+    <option value="todos">Todos los vendedores</option>
   </select>
 </div>
 
-<!-- 📦 MAPA -->
-<div class="container">
-  <div class="map-container">
-    <div id="map"></div>
-  </div>
-</div>
+<div id="map"></div>
 
 <script>
 
@@ -78,8 +60,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markers = [];
 let dataGlobal = [];
 
-// 🎨 Colores
-const colores = ["red", "blue", "green", "orange", "violet", "yellow"];
+const colores = ["red", "blue", "green", "orange", "violet"];
 const coloresVendedores = {};
 
 function crearIcono(color) {
@@ -91,8 +72,8 @@ function crearIcono(color) {
   });
 }
 
-// 🔁 REEMPLAZAR CON TU URL
-fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
+// 🔁 CAMBIAR URL
+fetch("TU_URL_WEB_APP")
   .then(res => res.json())
   .then(data => {
 
@@ -117,7 +98,6 @@ fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nL
 
   });
 
-// 📍 Mostrar puntos
 function mostrarMarkers(data) {
 
   markers.forEach(m => map.removeLayer(m));
@@ -127,15 +107,13 @@ function mostrarMarkers(data) {
 
   data.forEach(p => {
 
-    const color = coloresVendedores[p.vendedor] || "blue";
-    const icono = crearIcono(color);
+    const icono = crearIcono(coloresVendedores[p.vendedor] || "blue");
 
     const marker = L.marker([p.lat, p.lng], { icon: icono }).addTo(map);
 
     marker.bindPopup(`
       <b>${p.comercio}</b><br>
       ${p.nombre}<br>
-      📍 ${p.direccion}<br>
       📱 ${p.celular}<br>
       👤 ${p.vendedor}
     `);
@@ -145,24 +123,26 @@ function mostrarMarkers(data) {
   });
 
   if (bounds.length > 0) {
-    map.fitBounds(bounds, { padding: [50, 50] });
+    map.fitBounds(bounds, { padding: [40, 40] });
   }
 }
 
-// 🎛️ Filtro
 document.getElementById("filtroVendedor").addEventListener("change", function() {
 
-  const vendedor = this.value;
+  const v = this.value;
 
-  if (vendedor === "todos") {
+  if (v === "todos") {
     mostrarMarkers(dataGlobal);
   } else {
-    const filtrados = dataGlobal.filter(p => p.vendedor === vendedor);
-    mostrarMarkers(filtrados);
+    mostrarMarkers(dataGlobal.filter(p => p.vendedor === v));
   }
 
 });
 
+</script>
+
+</body>
+</html>
 </script>
 
 </body>
