@@ -7,30 +7,65 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    #map { height: 100vh; }
-
-    .filtro {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: white;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
     }
+
+    /* 🔝 Barra superior */
+    .topbar {
+      width: 100%;
+      background: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .topbar select {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* 📦 Contenedor */
+    .container {
+      padding: 20px;
+    }
+
+    /* 🗺️ Caja del mapa */
+    .map-container {
+      height: 75vh;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: white;
+    }
+
+    #map {
+      height: 100%;
+    }
+
   </style>
 </head>
 <body>
 
-<div class="filtro">
-  <label><b>Filtrar por vendedor:</b></label><br>
+<!-- 🔝 FILTROS -->
+<div class="topbar">
+  <label><b>Vendedor:</b></label>
   <select id="filtroVendedor">
     <option value="todos">Todos</option>
   </select>
 </div>
 
-<div id="map"></div>
+<!-- 📦 MAPA -->
+<div class="container">
+  <div class="map-container">
+    <div id="map"></div>
+  </div>
+</div>
 
 <script>
 
@@ -43,24 +78,21 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markers = [];
 let dataGlobal = [];
 
-// 🎨 Colores disponibles
+// 🎨 Colores
 const colores = ["red", "blue", "green", "orange", "violet", "yellow"];
 const coloresVendedores = {};
 
-// Icono personalizado
 function crearIcono(color) {
   return new L.Icon({
     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
     shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
     iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+    iconAnchor: [12, 41]
   });
 }
 
-// 👇 TU URL DEL WEB APP
-fetch("TU_URL_WEB_APP")
+// 🔁 REEMPLAZAR CON TU URL
+fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
   .then(res => res.json())
   .then(data => {
 
@@ -68,12 +100,10 @@ fetch("TU_URL_WEB_APP")
 
     const vendedores = [...new Set(data.map(p => p.vendedor))];
 
-    // Asignar colores automáticamente
-    vendedores.forEach((v, index) => {
-      coloresVendedores[v] = colores[index % colores.length];
+    vendedores.forEach((v, i) => {
+      coloresVendedores[v] = colores[i % colores.length];
     });
 
-    // Cargar dropdown
     const select = document.getElementById("filtroVendedor");
 
     vendedores.forEach(v => {
@@ -87,10 +117,9 @@ fetch("TU_URL_WEB_APP")
 
   });
 
-// Mostrar markers
+// 📍 Mostrar puntos
 function mostrarMarkers(data) {
 
-  // Limpiar mapa
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
@@ -115,21 +144,20 @@ function mostrarMarkers(data) {
     bounds.push([p.lat, p.lng]);
   });
 
-  // 🔍 Zoom automático
   if (bounds.length > 0) {
     map.fitBounds(bounds, { padding: [50, 50] });
   }
 }
 
-// Evento filtro
+// 🎛️ Filtro
 document.getElementById("filtroVendedor").addEventListener("change", function() {
 
-  const vendedorSeleccionado = this.value;
+  const vendedor = this.value;
 
-  if (vendedorSeleccionado === "todos") {
+  if (vendedor === "todos") {
     mostrarMarkers(dataGlobal);
   } else {
-    const filtrados = dataGlobal.filter(p => p.vendedor === vendedorSeleccionado);
+    const filtrados = dataGlobal.filter(p => p.vendedor === vendedor);
     mostrarMarkers(filtrados);
   }
 
