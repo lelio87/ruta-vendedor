@@ -5,39 +5,107 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    #map { height: 100vh; }
+
+    .filtro {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+  </style>
 </head>
 <body>
 
-<div id="map" style="height:100vh;"></div>
+<div class="filtro">
+  <label><b>Filtrar por vendedor:</b></label><br>
+  <select id="filtroVendedor">
+    <option value="todos">Todos</option>
+  </select>
+</div>
+
+<div id="map"></div>
 
 <script>
 
-const map = L.map('map').setView([-32.8895, -68.8458], 12);
+const map = L.map('map').setView([-32.8895, -68.8458], 17);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
-// 👇 PEGÁ TU URL DEL WEB APP
+let markers = [];
+let dataGlobal = [];
+
+// 👇 TU URL DEL WEB APP
 fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
   .then(res => res.json())
   .then(data => {
 
+    dataGlobal = data;
+
+    const vendedores = new Set();
+
     data.forEach(p => {
-
-      const marker = L.marker([p.lat, p.lng]).addTo(map);
-
-      marker.bindPopup(`
-        <b>${p.comercio}</b><br>
-        ${p.nombre}<br>
-        📍 ${p.direccion}<br>
-        📱 ${p.celular}<br>
-        👤 ${p.vendedor}
-      `);
-
+      vendedores.add(p.vendedor);
     });
 
+    // Cargar dropdown
+    const select = document.getElementById("filtroVendedor");
+
+    vendedores.forEach(v => {
+      const option = document.createElement("option");
+      option.value = v;
+      option.textContent = v;
+      select.appendChild(option);
+    });
+
+    mostrarMarkers(data);
+
   });
+
+// Función para mostrar puntos
+function mostrarMarkers(data) {
+
+  // Limpiar mapa
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  data.forEach(p => {
+
+    const marker = L.marker([p.lat, p.lng]).addTo(map);
+
+    marker.bindPopup(`
+      <b>${p.comercio}</b><br>
+      ${p.nombre}<br>
+      📍 ${p.direccion}<br>
+      📱 ${p.celular}<br>
+      👤 ${p.vendedor}
+    `);
+
+    markers.push(marker);
+  });
+}
+
+// Evento filtro
+document.getElementById("filtroVendedor").addEventListener("change", function() {
+
+  const vendedorSeleccionado = this.value;
+
+  if (vendedorSeleccionado === "todos") {
+    mostrarMarkers(dataGlobal);
+  } else {
+    const filtrados = dataGlobal.filter(p => p.vendedor === vendedorSeleccionado);
+    mostrarMarkers(filtrados);
+  }
+
+});
 
 </script>
 
