@@ -7,12 +7,8 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
+    body { margin: 0; font-family: Arial; }
 
-    /* 🔝 Barra minimal */
     .topbar {
       position: absolute;
       top: 10px;
@@ -25,18 +21,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    select {
-      border: none;
-      font-size: 14px;
-      outline: none;
-    }
-
-    /* 🗺️ Mapa full */
-    #map {
-      height: 100vh;
-      width: 100%;
-    }
-
+    #map { height: 100vh; width: 100%; }
   </style>
 </head>
 <body>
@@ -53,52 +38,49 @@
 
 const map = L.map('map').setView([-32.8895, -68.8458], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap'
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 let markers = [];
 let dataGlobal = [];
 
-const colores = ["red", "blue", "green", "orange", "violet"];
+const colores = ["red","blue","green","orange","violet"];
 const coloresVendedores = {};
 
 function crearIcono(color) {
   return new L.Icon({
     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
     shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+    iconSize: [25,41],
+    iconAnchor: [12,41]
   });
 }
 
-// 🔁 CAMBIAR URL
-fetch("TU_URL_WEB_APP")
-  .then(res => res.json())
-  .then(data => {
+// 🔁 PEGAR URL DEL WEB APP
+fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
+.then(res => res.json())
+.then(data => {
 
-    dataGlobal = data;
+  dataGlobal = data;
 
-    const vendedores = [...new Set(data.map(p => p.vendedor))];
+  const vendedores = [...new Set(data.map(p => p.vendedor))];
 
-    vendedores.forEach((v, i) => {
-      coloresVendedores[v] = colores[i % colores.length];
-    });
-
-    const select = document.getElementById("filtroVendedor");
-
-    vendedores.forEach(v => {
-      const option = document.createElement("option");
-      option.value = v;
-      option.textContent = v;
-      select.appendChild(option);
-    });
-
-    mostrarMarkers(data);
-
+  vendedores.forEach((v,i)=>{
+    coloresVendedores[v] = colores[i % colores.length];
   });
 
-function mostrarMarkers(data) {
+  const select = document.getElementById("filtroVendedor");
+
+  vendedores.forEach(v=>{
+    const option = document.createElement("option");
+    option.value = v;
+    option.textContent = v;
+    select.appendChild(option);
+  });
+
+  mostrarMarkers(data);
+});
+
+function mostrarMarkers(data){
 
   markers.forEach(m => map.removeLayer(m));
   markers = [];
@@ -109,7 +91,7 @@ function mostrarMarkers(data) {
 
     const icono = crearIcono(coloresVendedores[p.vendedor] || "blue");
 
-    const marker = L.marker([p.lat, p.lng], { icon: icono }).addTo(map);
+    const marker = L.marker([p.lat,p.lng],{icon:icono}).addTo(map);
 
     marker.bindPopup(`
       <b>${p.comercio}</b><br>
@@ -119,27 +101,25 @@ function mostrarMarkers(data) {
     `);
 
     markers.push(marker);
-    bounds.push([p.lat, p.lng]);
+    bounds.push([p.lat,p.lng]);
   });
 
-  if (bounds.length > 0) {
-    map.fitBounds(bounds, { padding: [40, 40] });
+  if(bounds.length>0){
+    map.fitBounds(bounds,{padding:[40,40]});
   }
 }
 
-document.getElementById("filtroVendedor").addEventListener("change", function() {
+document.getElementById("filtroVendedor").addEventListener("change",function(){
 
   const v = this.value;
 
-  if (v === "todos") {
+  if(v==="todos"){
     mostrarMarkers(dataGlobal);
-  } else {
-    mostrarMarkers(dataGlobal.filter(p => p.vendedor === v));
+  }else{
+    mostrarMarkers(dataGlobal.filter(p=>p.vendedor===v));
   }
-
 });
 
 </script>
-
 </body>
 </html>
