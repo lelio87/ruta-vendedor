@@ -94,11 +94,14 @@ function mostrarMarkers(data){
     const marker = L.marker([p.lat,p.lng],{icon:icono}).addTo(map);
 
     marker.bindPopup(`
-      <b>${p.comercio}</b><br>
-      ${p.nombre}<br>
-      📱 ${p.celular}<br>
-      👤 ${p.vendedor}
-    `);
+  <div style="font-size:14px; line-height:1.5">
+    <b>👤 Nombre del cliente:</b><br> ${p.nombre}<br><br>
+    <b>📍 Dirección:</b><br> ${p.direccion}, Mendoza, Argentina<br><br>
+    <b>🏪 Comercio:</b><br> ${p.comercio}<br>
+    <b>📞 Contacto:</b> ${p.celular}<br>
+    <b>👨‍💼 Vendedor:</b> ${p.vendedor}
+  </div>
+`);
 
     markers.push(marker);
     bounds.push([p.lat,p.lng]);
