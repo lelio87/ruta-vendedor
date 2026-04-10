@@ -7,28 +7,28 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <style>
-    body { margin: 0; font-family: Arial; }
+    body { margin:0; font-family:Arial; }
 
     .topbar {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      background: white;
-      padding: 8px 12px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position:absolute;
+      top:10px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:1000;
+      background:white;
+      padding:8px 12px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
     }
 
-    #map { height: 100vh; width: 100%; }
+    #map { height:100vh; }
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <select id="filtroVendedor">
-    <option value="todos">Todos los vendedores</option>
+    <option value="todos">Todos</option>
   </select>
 </div>
 
@@ -36,7 +36,7 @@
 
 <script>
 
-const map = L.map('map').setView([-32.8895, -68.8458], 12);
+const map = L.map('map').setView([-32.8895,-68.8458],12);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
@@ -46,23 +46,23 @@ let dataGlobal = [];
 const colores = ["red","blue","green","orange","violet"];
 const coloresVendedores = {};
 
-function crearIcono(color) {
+function crearIcono(color){
   return new L.Icon({
-    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    iconSize: [25,41],
-    iconAnchor: [12,41]
+    iconUrl:`https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
+    shadowUrl:'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    iconSize:[25,41],
+    iconAnchor:[12,41]
   });
 }
 
-// 🔁 PEGAR URL DEL WEB APP
+// 🔁 PEGAR TU URL
 fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nLW4mwUQkRUarr6a-I2nPLouw7SpPs08q-io/exec")
-.then(res => res.json())
-.then(data => {
+.then(res=>res.json())
+.then(data=>{
 
   dataGlobal = data;
 
-  const vendedores = [...new Set(data.map(p => p.vendedor))];
+  const vendedores = [...new Set(data.map(p=>p.vendedor))];
 
   vendedores.forEach((v,i)=>{
     coloresVendedores[v] = colores[i % colores.length];
@@ -82,26 +82,24 @@ fetch("https://script.google.com/macros/s/AKfycbwNzFtV6BDxWDIkxAm5QDhDzzDkLlU5nL
 
 function mostrarMarkers(data){
 
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
 
-  const bounds = [];
+  const bounds=[];
 
-  data.forEach(p => {
+  data.forEach(p=>{
 
     const icono = crearIcono(coloresVendedores[p.vendedor] || "blue");
 
     const marker = L.marker([p.lat,p.lng],{icon:icono}).addTo(map);
 
     marker.bindPopup(`
-  <div style="font-size:14px; line-height:1.5">
-    <b>👤 Nombre del cliente:</b><br> ${p.nombre}<br><br>
-    <b>📍 Dirección:</b><br> ${p.direccion}, Mendoza, Argentina<br><br>
-    <b>🏪 Comercio:</b><br> ${p.comercio}<br>
-    <b>📞 Contacto:</b> ${p.celular}<br>
-    <b>👨‍💼 Vendedor:</b> ${p.vendedor}
-  </div>
-`);
+      <b>Nombre del cliente:</b> ${p.nombre}<br>
+      <b>Dirección:</b> ${p.direccion}, Mendoza, Argentina<br>
+      <b>Comercio:</b> ${p.comercio}<br>
+      <b>Contacto:</b> ${p.celular}<br>
+      <b>Vendedor:</b> ${p.vendedor}
+    `);
 
     markers.push(marker);
     bounds.push([p.lat,p.lng]);
@@ -121,6 +119,7 @@ document.getElementById("filtroVendedor").addEventListener("change",function(){
   }else{
     mostrarMarkers(dataGlobal.filter(p=>p.vendedor===v));
   }
+
 });
 
 </script>
